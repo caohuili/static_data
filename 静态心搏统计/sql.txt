@@ -1,0 +1,48 @@
+﻿SELECT * FROM `t_test` WHERE PatientID=2861778
+SELECT * FROM `t_ecg_event` WHERE PatientID=2861778
+
+select * from t_fullflow_test_section where TestID=107808
+
+select * from t_fullflow_test_result where TestID=2870187
+
+
+-- 强大夫patientid合肥住院，去掉起搏
+
+select count(PatientID) from t_patient WHERE DataSource=2 AND PatientID not IN (select PatientID from t_ecg_event where DIID = 421) and PatientID in (select PatientID from t_ecg_event)
+
+
+-- 强大夫合肥住院patientid,rpos,rlabel
+
+SELECT PatientID,RPos,RLabel from t_beat where PatientID in
+(select PatientID from t_patient WHERE DataSource=2 AND PatientID not IN (select PatientID from t_ecg_event where DIID = 421) and PatientID in (select PatientID from t_ecg_event))
+
+
+-- AI合肥住院testID 
+
+SELECT t_test.PatientID,t_fullflow_test_result.RPosition,t_fullflow_test_result.RLabel,t_fullflow_test_result.TestID 
+from t_test,t_fullflow_test_result 
+WHERE t_test.TestID=t_fullflow_test_result.TestID AND t_fullflow_test_result.Lead = 'AI' AND
+t_fullflow_test_result.TestID in (SELECT TestID from t_test WHERE PatientID in 
+(select PatientID from t_patient WHERE DataSource=2 AND PatientID not IN (select PatientID from t_ecg_event where DIID = 421) and PatientID in (select PatientID from t_ecg_event)) 
+and TestType = 15
+)
+
+
+
+SELECT TestID from t_test WHERE PatientID in 
+(select PatientID from t_patient WHERE DataSource=2 AND PatientID not IN (select PatientID from t_ecg_event where DIID = 421) and PatientID in (select PatientID from t_ecg_event)) 
+and TestType = 9
+
+
+-- AI 合肥住院TestID,RPosition,RLabel
+SELECT TestID,RPosition,RLabel from t_fullflow_test_result WHERE Lead = 'AI' AND
+TestID in (SELECT TestID from t_test WHERE PatientID in 
+(select PatientID from t_patient WHERE DataSource=2 AND PatientID not IN (select PatientID from t_ecg_event where DIID = 421) and PatientID in (select PatientID from t_ecg_event)) 
+and TestType = 5
+)
+
+#心搏统计
+SELECT t_test.PatientID,t_fullflow_test_result.RPosition,t_fullflow_test_result.RLabel,t_fullflow_test_result.TestID 
+from t_test,t_fullflow_test_result 
+WHERE t_test.TestID=t_fullflow_test_result.TestID AND t_fullflow_test_result.Lead = 'AI' AND t_test.PatientID in (select PatientID from t_ecg_event)
+and TestType = 10
